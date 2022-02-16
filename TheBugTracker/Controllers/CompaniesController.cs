@@ -73,7 +73,7 @@ namespace TheBugTracker.Controllers
                 return NotFound();
             }
 
-            var company = await _context.Companies.FindAsync(id);
+            Company company = await _context.Companies.FindAsync(id);
             if (company == null)
             {
                 return NotFound();
