@@ -63,12 +63,13 @@ namespace TheBugTracker.Services
             return result;
         }
 
-        public Task<bool> RemoveUserFromRoleAsync(BTUser user, string roleName)
+        public async Task<bool> RemoveUserFromRoleAsync(BTUser user, string roleName)
         {
-            throw new NotImplementedException();
+            bool result = (await _userManager.RemoveFromRoleAsync(user, roleName)).Succeeded;
+            return result;
         }
 
-        public Task<bool> RemoveUserFromRolesAsync(BTUser user, IEnumerable<string> roles)
+        public async Task<bool> RemoveUserFromRolesAsync(BTUser user, IEnumerable<string> roles)
         {
             throw new NotImplementedException();
         }
