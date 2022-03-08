@@ -32,6 +32,16 @@ namespace TheBugTracker.Services
                                             .Include(p=>p.Tickets)
                                                 .ThenInclude(t=>t.Comments)
                                             .Include(p => p.Tickets)
+                                                .ThenInclude(t => t.Attachments)
+                                            .Include(p => p.Tickets)
+                                                .ThenInclude(t => t.History)
+                                            .Include(p => p.Tickets)
+                                                .ThenInclude(t => t.Notifications)
+                                            .Include(p => p.Tickets)
+                                                .ThenInclude(t => t.DeveloperUser)
+                                            .Include(p => p.Tickets)
+                                                .ThenInclude(t => t.OwnerUser)
+                                            .Include(p => p.Tickets)
                                                 .ThenInclude(t => t.TicketStatus)
                                             .Include(p => p.Tickets)
                                                 .ThenInclude(t => t.TicketPriority)
@@ -46,14 +56,28 @@ namespace TheBugTracker.Services
         public async Task<List<Ticket>> GetAllTicketsAsync(int companyId)
         {
             List<Ticket> result = new();
-            result = await _context.Tickets.Where(t => t.CompanyId == companyId).ToListAsync()
+            List<Project> projects = new();
+
+            projects = await GetAllProjectsAsync(companyId);
+
+            result = projects.SelectMany(p => p.Tickets).ToList();
+
             return result;
         }
 
         public async Task<Company> GetCompanyInfoByIdAsync(int? companyId)
         {
-            List<Company> result = new();
-            result = await _context.Companies.Where(c => c.CompanyId == companyId).ToListAsync()
+            Company result = new();
+           
+            if (companyId != null)
+            {
+                result = await _context.Companies
+                                        .Include(c=>c.Members)
+                                        .Include(c=>c.Projects)
+                                        .Include(c=>c.Invites)
+                                        .FirstOrDefaultAsync(c => c.Id == companyId);
+            }
+
             return result;
         }
     }
