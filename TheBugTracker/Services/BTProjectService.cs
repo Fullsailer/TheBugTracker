@@ -80,9 +80,11 @@ namespace TheBugTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<Project>> GetArchivedProjectsByCompany(int companyId)
+        public async Task<List<Project>> GetArchivedProjectsByCompany(int companyId)
         {
-            throw new NotImplementedException();
+            List<Project> projects = await GetAllProjectsByCompany(companyId);
+
+            return projects.Where(p => p.Archived == true).ToList();
         }
 
         public Task<List<BTUser>> GetDevelopersOnProjectAsync(int projectId)
