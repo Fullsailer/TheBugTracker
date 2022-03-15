@@ -50,7 +50,7 @@ namespace TheBugTracker.Services
         {
             List<Project> projects = new();
 
-            projects = await _context.Projects.Where(p => p.CompanyId == companyId)
+            projects = await _context.Projects.Where(p => p.CompanyId == companyId && p.Archived == false)
                                             .Include(p => p.Members)
                                             .Include(p => p.Tickets)
                                                 .ThenInclude(t => t.Comments)
@@ -75,14 +75,19 @@ namespace TheBugTracker.Services
             return projects;
         }
 
-        public Task<List<Project>> GetAllProjectsByPriority(int companyId, string priorityName)
+        public async Task<List<Project>> GetAllProjectsByPriority(int companyId, string priorityName)
         {
-            throw new NotImplementedException();
+            List<Project> projects = await GetAllProjectsByCompany(companyId);
+            int priorityId = await LookupProjectPriorityId(priorityName);
+            //Why is this code thinking I'm passing in a string when the id should only be a int?
+            return projects.Where(p => p.ProjectPriorityId == priorityId).ToList();
         }
 
-        public Task<List<Project>> GetArchivedProjectsByCompany(int companyId)
+        public async Task<List<Project>> GetArchivedProjectsByCompany(int companyId)
         {
-            throw new NotImplementedException();
+            List<Project> projects = await GetAllProjectsByCompany(companyId);
+
+            return projects.Where(p => p.Archived == true).ToList();
         }
 
         public Task<List<BTUser>> GetDevelopersOnProjectAsync(int projectId)
@@ -126,14 +131,25 @@ namespace TheBugTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> IsUserOnProject(string userId, int projectId)
+        public async Task<bool> IsUserOnProjectAsync(string userId, int projectId)
         {
-            throw new NotImplementedException();
+            Project project = await _context.Projects.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == projectId);
+            
+            bool result = false;
+
+            if(project != null)
+            {
+                result = project.Members.Any(m => m.Id == userId);
+            }
+
+            return result;
         }
 
-        public Task<int> LookupProjectPriorityId(string priorityName)
+        public async Task<int> LookupProjectPriorityId(string priorityName)
         {
-            throw new NotImplementedException();
+            int priorityId = (await _context.ProjectPriorities.FirstOrDefaultAsync(p => p.Name == priorityName)).Id;
+
+            return priorityId;
         }
 
         public Task RemoveProjectManagerAsync(int projectId)
