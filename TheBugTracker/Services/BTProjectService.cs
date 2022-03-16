@@ -106,8 +106,8 @@ namespace TheBugTracker.Services
         {
             List<Project> projects = await GetAllProjectsByCompany(companyId);
             int priorityId = await LookupProjectPriorityId(priorityName);
-            //Why is this code thinking I'm passing in a string when the id should only be a int?
-            return projects.Where(p => p.ProjectPriorityId == priorityId).ToList();
+            //Why is this code thinking I'm passing in a string when the id should only be a int? does priorityName or priorityId go here?
+            return projects.Where(p => p.ProjectPriorityId == priorityName).ToList();
         }
 
         public async Task<List<Project>> GetArchivedProjectsByCompany(int companyId)
@@ -148,9 +148,40 @@ namespace TheBugTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<Project>> GetUserProjectsAsync(string userId)
+        public async Task<List<Project>> GetUserProjectsAsync(string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<Project> userProjects = (await _context.Users
+                     .Include(u => u.Projects)
+                        .ThenInclude(p => p.Company)
+                     .Include(u => u.Projects)
+                        .ThenInclude(p => p.Members)
+                    .Include(u => u.Projects)
+                        .ThenInclude(p => p.Tickets)
+                    .Include(u => u.Projects)
+                        .ThenInclude(t => t.Tickets)
+                            .ThenInclude(t => t.DeveloperUser)
+                    .Include(u => u.Projects)
+                        .ThenInclude(t => t.Tickets)
+                            .ThenInclude(t => t.OwnerUser)
+                    .Include(u => u.Projects)
+                        .ThenInclude(t => t.Tickets)
+                            .ThenInclude(t => t.TicketPriority)
+                    .Include(u => u.Projects)
+                        .ThenInclude(t => t.Tickets)
+                            .ThenInclude(t => t.TicketStatus)
+                    .Include(u => u.Projects)
+                        .ThenInclude(t => t.Tickets)
+                            .ThenInclude(t => t.TicketType)
+                    .FirstOrDefaultAsync(u => u.Id == userId)).Projects.ToList();
+                return userProjects;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"***** ERROR ***** -Error Getting User Projects. -----------> {ex.Message}");
+                throw;
+            }
         }
 
         public Task<List<BTUser>> GetUsersNotOnProjectAsync(int projectId, int companyId)
@@ -184,12 +215,33 @@ namespace TheBugTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task RemoveUserFromProjectAsync(string userId, int projectId)
+        public async Task RemoveUserFromProjectAsync(string userId, int projectId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                BTUser user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                Project project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+
+                try
+                {
+                    if (await IsUserOnProjectAsync(userId, projectId))
+                    {
+                        project.Members.Remove(user);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"***** ERROR ***** -Error Removing User from project. -----------> {ex.Message}");
+            }
         }
 
-        public Task RemoveUsersFromProjectByRoleAsync(string role, int projectId)
+        public async Task RemoveUsersFromProjectByRoleAsync(string role, int projectId)
         {
             throw new NotImplementedException();
         }
