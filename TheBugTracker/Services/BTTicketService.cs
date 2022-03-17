@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TheBugTracker.Data;
 using TheBugTracker.Models;
 using TheBugTracker.Services.Interfaces;
 
@@ -9,9 +10,17 @@ namespace TheBugTracker.Services
 {
     public class BTTicketService : IBTTicketService
     {
-        public Task AddNewTicketAsync(Ticket ticket)
+        private readonly ApplicationDbContext _context;
+
+        public BTTicketService(ApplicationDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
+        }
+
+        public async Task AddNewTicketAsync(Ticket ticket)
+        {
+            _context.Add(ticket);
+            await _context.SaveChangesAsync();
         }
 
         public Task ArchiveTicketAsync(Ticket ticket)
