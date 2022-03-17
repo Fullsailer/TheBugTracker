@@ -258,7 +258,28 @@ namespace TheBugTracker.Services
 
         public async Task RemoveUsersFromProjectByRoleAsync(string role, int projectId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<BTUser> members = await GetProjectMembersByRoleAsync(projectId, role);
+                Project project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+                foreach(BTUser btUser in members)
+                {
+                    try
+                    {
+                        project.Members.Remove(btUser);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"***** ERROR ***** -Error Removing User from project. -----------> {ex.Message}");
+                throw;
+            }
         }
 
         //CRUD - Update
