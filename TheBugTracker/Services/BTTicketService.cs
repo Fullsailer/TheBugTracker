@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -78,9 +79,9 @@ namespace TheBugTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task<Ticket> GetTicketByIdAsync(int ticketId)
+        public async Task<Ticket> GetTicketByIdAsync(int ticketId)
         {
-            throw new NotImplementedException();
+            return await _context.Tickets.FirstOrDefaultAsync(t => t.Id ==ticketId);
         }
 
         public Task<BTUser> GetTicketDeveloperAsync(int ticketId)
