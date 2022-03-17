@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TheBugTracker.Data;
 using TheBugTracker.Models;
+using TheBugTracker.Models.Enums;
 using TheBugTracker.Services.Interfaces;
 
 namespace TheBugTracker.Services
@@ -70,9 +71,15 @@ namespace TheBugTracker.Services
             await _context.SaveChangesAsync();
         }
 
-        public Task<List<BTUser>> GetAllProjectMembersExceptPMAsync(int projectId)
+        public async Task<List<BTUser>> GetAllProjectMembersExceptPMAsync(int projectId)
         {
-            throw new NotImplementedException();
+            List<BTUser> developers = await GetProjectMembersByRoleAsync(projectId, Roles.Developer.ToString());
+            List<BTUser> submitters = await GetProjectMembersByRoleAsync(projectId, Roles.Submitter.ToString());
+            List<BTUser> adims = await GetProjectMembersByRoleAsync(projectId, Roles.Admin.ToString());
+
+            List<BTUser> teamMembers = developers.Concat(submitters).Concat(adims).ToList();
+
+            return teamMembers;
         }
 
         public async Task<List<Project>> GetAllProjectsByCompany(int companyId)
