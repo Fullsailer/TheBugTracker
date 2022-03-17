@@ -126,7 +126,7 @@ namespace TheBugTracker.Services
             return projects.Where(p => p.Archived == true).ToList();
         }
 
-        public Task<List<BTUser>> GetDevelopersOnProjectAsync(int projectId)
+        public async Task<List<BTUser>> GetDevelopersOnProjectAsync(int projectId)
         {
             throw new NotImplementedException();
         }
@@ -206,9 +206,11 @@ namespace TheBugTracker.Services
             }
         }
 
-        public Task<List<BTUser>> GetUsersNotOnProjectAsync(int projectId, int companyId)
+        public async Task<List<BTUser>> GetUsersNotOnProjectAsync(int projectId, int companyId)
         {
-            throw new NotImplementedException();
+            List<BTUser> users = await _context.Users.Where(u => u.Projects.All(p => p.Id != projectId)).ToListAsync();
+
+            return users.Where(u => u.CompanyId == companyId).ToList();
         }
 
         public async Task<bool> IsUserOnProjectAsync(string userId, int projectId)
