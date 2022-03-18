@@ -129,7 +129,15 @@ namespace TheBugTracker.Services
 
         public async Task<int?> LookupTicketTypeIdAsync(string typeName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TicketType type = await _context.TicketTypes.FirstOrDefaultAsync(p => p.Name == typeName);
+                return type?.Id;
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public async Task UpdateTicketAsync(Ticket ticket)
