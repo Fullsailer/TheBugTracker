@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,9 +38,23 @@ namespace TheBugTracker.Services
             }
         }
 
-        public Task<List<Notification>> GetReceivedNotificationAsync(string userId)
+        public async Task<List<Notification>> GetReceivedNotificationAsync(string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<Notification> notifications = await _context.Notifications
+                                                                 .Include(n => n.Recipient)
+                                                                 .Include(n => n.Sender)
+                                                                 .Include(n => n.Ticket)
+                                                                    .ThenInclude(t => t.Project)
+                                                                .Where(n => n.RecipientId == userId).ToListAsync();
+                return notifications;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public Task<List<Notification>> GetSentNotificationAsync(string userId)
