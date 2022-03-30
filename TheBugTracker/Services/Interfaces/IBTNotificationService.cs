@@ -18,6 +18,6 @@ namespace TheBugTracker.Services.Interfaces
 
         public Task SendMembersEmailNotificationAsync(Notification notification, List<BTUser> members);
 
-        public Task SendEmailNotificationAsync(Notification notification, string emailSubject);
+        public Task<bool> SendEmailNotificationAsync(Notification notification, string emailSubject);
     }
 }
