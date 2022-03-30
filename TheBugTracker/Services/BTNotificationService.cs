@@ -10,13 +10,13 @@ using TheBugTracker.Services.Interfaces;
 
 namespace TheBugTracker.Services
 {
-    public class BTNotification : IBTNotificationService
+    public class BTNotificationService : IBTNotificationService
     {
         private readonly ApplicationDbContext _context;
         private readonly IEmailSender _emailSender;
         private readonly IBTRolesService _rolesService;
 
-        public BTNotification(ApplicationDbContext context,
+        public BTNotificationService(ApplicationDbContext context,
                               IEmailSender emailSender,
                               IBTRolesService rolesService)
         {
