@@ -58,7 +58,14 @@ namespace TheBugTracker.Services
 
         public string GetFileIcon(string file)
         {
-            throw new NotImplementedException();
+            string fileImage = "default";
+
+            if (!string.IsNullOrWhiteSpace(file))
+            {
+                fileImage = Path.GetExtension(file).Replace(".", "");
+                return $"/img/png/{fileImage}.png";
+            }
+            return fileImage;
         }
     }
 }
