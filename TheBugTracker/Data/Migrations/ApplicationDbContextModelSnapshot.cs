@@ -374,7 +374,7 @@ namespace TheBugTracker.Data.Migrations
                     b.Property<bool>("Archived")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
@@ -397,10 +397,7 @@ namespace TheBugTracker.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<string>("ProjectPriorityId")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("ProjectPriorityId1")
+                    b.Property<int?>("ProjectPriorityId")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("StartDate")
@@ -410,7 +407,7 @@ namespace TheBugTracker.Data.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("ProjectPriorityId1");
+                    b.HasIndex("ProjectPriorityId");
 
                     b.ToTable("Projects");
                 });
@@ -713,7 +710,7 @@ namespace TheBugTracker.Data.Migrations
             modelBuilder.Entity("TheBugTracker.Models.Invite", b =>
                 {
                     b.HasOne("TheBugTracker.Models.Company", "Company")
-                        .WithMany()
+                        .WithMany("Invites")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -772,13 +769,11 @@ namespace TheBugTracker.Data.Migrations
                 {
                     b.HasOne("TheBugTracker.Models.Company", "Company")
                         .WithMany("Projects")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyId");
 
                     b.HasOne("TheBugTracker.Models.ProjectPriority", "ProjectPriority")
                         .WithMany()
-                        .HasForeignKey("ProjectPriorityId1");
+                        .HasForeignKey("ProjectPriorityId");
 
                     b.Navigation("Company");
 
@@ -885,6 +880,8 @@ namespace TheBugTracker.Data.Migrations
 
             modelBuilder.Entity("TheBugTracker.Models.Company", b =>
                 {
+                    b.Navigation("Invites");
+
                     b.Navigation("Members");
 
                     b.Navigation("Projects");

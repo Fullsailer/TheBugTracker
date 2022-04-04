@@ -15,7 +15,7 @@ namespace TheBugTracker.Models
         public int Id { get; set; }
 
         [DisplayName("Company")]
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -32,7 +32,7 @@ namespace TheBugTracker.Models
         public DateTimeOffset EndDate { get; set; }
 
         [DisplayName("Priority")]
-        public int ProjectPriorityId { get; set; }
+        public int? ProjectPriorityId { get; set; }
 
         // For Image
         [NotMapped]
