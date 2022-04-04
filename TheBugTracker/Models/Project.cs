@@ -32,7 +32,7 @@ namespace TheBugTracker.Models
         public DateTimeOffset EndDate { get; set; }
 
         [DisplayName("Priority")]
-        public string ProjectPriorityId { get; set; }
+        public int ProjectPriorityId { get; set; }
 
         // For Image
         [NotMapped]
