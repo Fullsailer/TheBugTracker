@@ -140,7 +140,7 @@ namespace TheBugTracker.Services
             List<Project> projects = await GetAllProjectsByCompany(companyId);
             int priorityId = await LookupProjectPriorityId(priorityName);
             //Why is this code thinking I'm passing in a string when the id should only be a int? does priorityName or priorityId go here?
-            return projects.Where(p => p.ProjectPriorityId == priorityName).ToList();
+            return projects.Where(p => p.ProjectPriorityId == priorityId).ToList();
         }
 
         public async Task<List<Project>> GetArchivedProjectsByCompany(int companyId)
