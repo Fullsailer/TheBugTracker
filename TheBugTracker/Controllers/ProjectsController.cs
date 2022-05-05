@@ -85,6 +85,17 @@ namespace TheBugTracker.Controllers
         }
         #endregion
 
+        #region ArchivedProjects
+        public async Task<IActionResult> ArchivedProjects()
+        {
+            int companyId = User.Identity.GetCompanyId().Value;
+
+            List<Project> projects = await _projectService.GetArchivedProjectsByCompanyAsync(companyId);
+
+            return View(projects);
+        } 
+        #endregion
+
         #region Projects Details
         // GET: Projects/Details/5
         public async Task<IActionResult> Details(int? id)
