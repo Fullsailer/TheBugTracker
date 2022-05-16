@@ -105,9 +105,10 @@ namespace TheBugTracker.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects
-                .Include(p => p.Company)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            int companyId = User.Identity.GetCompanyId().Value;
+
+            Project project = await _projectService.GetProjectByIdAsync(id.Value, companyId);
+
             if (project == null)
             {
                 return NotFound();
