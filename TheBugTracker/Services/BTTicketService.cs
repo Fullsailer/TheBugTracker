@@ -62,6 +62,57 @@ namespace TheBugTracker.Services
         }
         #endregion
 
+        #region Get Ticket Attachment By Id
+        public async Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId)
+        {
+            try
+            {
+                TicketAttachment ticketAttachment = await _context.TicketAttachments
+                                                                  .Include(t => t.User)
+                                                                  .FirstOrDefaultAsync(t => t.Id == ticketAttachmentId);
+                return ticketAttachment;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Add Ticket Attachment
+        public async Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment)
+        {
+            try
+            {
+                await _context.AddAsync(ticketAttachment);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        } 
+        #endregion
+
+        #region Add Ticket Comment
+        public async Task AddTicketCommentAsync(TicketComment ticketComment)
+        {
+            try
+            {
+                await _context.AddAsync(ticketComment);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+
         #region Assign Ticket
         public async Task AssignTicketAsync(int ticketId, string userId)
         {
@@ -118,8 +169,9 @@ namespace TheBugTracker.Services
 
                 throw;
             } 
-            #endregion
+            
         }
+        #endregion
 
         #region Get All Tickets By Priority
         public async Task<List<Ticket>> GetAllTicketsByPriorityAsync(int companyId, string priorityName)
@@ -310,6 +362,9 @@ namespace TheBugTracker.Services
                                     .Include(t => t.TicketPriority)
                                     .Include(t => t.TicketStatus)
                                     .Include(t => t.TicketType)
+                                    .Include(t => t.Comments)
+                                    .Include(t => t.Attachments)
+                                    .Include(t => t.History)
                                     .FirstOrDefaultAsync(t => t.Id == ticketId);
             }
             catch (Exception)
