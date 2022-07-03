@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -85,7 +86,7 @@ namespace TheBugTracker.Controllers
         }
         #endregion
 
-        #region ArchivedProjects
+        #region Get Archived Projects
         public async Task<IActionResult> ArchivedProjects()
         {
             int companyId = User.Identity.GetCompanyId().Value;
@@ -93,6 +94,87 @@ namespace TheBugTracker.Controllers
             List<Project> projects = await _projectService.GetArchivedProjectsByCompanyAsync(companyId);
 
             return View(projects);
+        }
+        #endregion
+
+        #region Get Unassigned Projects
+        public async Task<IActionResult> UnassignedProjects()
+        {
+            int companyId = User.Identity.GetCompanyId().Value;
+
+            List<Project> projects = new();
+
+            projects = await _projectService.GetUnassignedProjectsAsync(companyId);
+
+            return View(projects);
+        }
+        #endregion
+
+        #region Get Assign Project Manager
+        [HttpGet]
+        public async Task<IActionResult> AssignPM(int projectId)
+        {
+            int companyId = User.Identity.GetCompanyId().Value;
+
+            AssignPMViewModel model = new();
+
+            model.Project = await _projectService.GetProjectByIdAsync(projectId, companyId);
+            model.PMList = new SelectList(await _rolesService.GetUserInRoleAsync(nameof(Roles.ProjectManager), companyId), "Id", "FullName");
+
+            return View(model);
+        }
+        #endregion
+
+        #region Post Assign Project Manager
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AssignPM(AssignPMViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(model.PMID))
+                    {
+                        //Fix this method it cause an infinate loop looking for empty PM MODEL
+                        //Does this have to do with not haveing A company id and need to assign a user to a company to have a company id so it's not zero?
+                        await _projectService.AddProjectManagerAsync(model.PMID, model.Project.Id);
+
+                        return RedirectToAction(nameof(Details), new { id = model.Project.Id });
+                    }
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+
+            
+            return RedirectToAction(nameof(AssignPM), new { projectId = model.Project.Id });
+        }
+        #endregion
+
+        #region Get Assign Members
+        [HttpGet]
+        public async Task<IActionResult> AssignMembers(int id)
+        {
+            ProjectMembersViewModel model = new();
+
+            int companyId = User.Identity.GetCompanyId().Value;
+
+            model.Project = await _projectService.GetProjectByIdAsync(id, companyId);
+
+            List<BTUser> developers = await _rolesService.GetUserInRoleAsync(nameof(Roles.Developer), companyId);
+            List<BTUser> submitters = await _rolesService.GetUserInRoleAsync(nameof(Roles.Submitter), companyId);
+
+            List<BTUser> companyMembers = developers.Concat(submitters).ToList();
+
+            List<string> projectMembers = model.Project.Members.Select(m => m.Id).ToList();
+            model.Users = new MultiSelectList(companyMembers, "Id", "FullName", projectMembers);
+
+            return View(model);
         } 
         #endregion
 
