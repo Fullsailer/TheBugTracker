@@ -175,6 +175,37 @@ namespace TheBugTracker.Controllers
             model.Users = new MultiSelectList(companyMembers, "Id", "FullName", projectMembers);
 
             return View(model);
+        }
+        #endregion
+
+        #region Post Assign Members
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignMembers(ProjectMembersViewModel model)
+        {
+            if (model.SelectedUsers != null)
+            {
+                //Creat a list of our memeber Id's
+                List<string> memberIds = (await _projectService.GetAllProjectMembersExceptPMAsync(model.Project.Id))
+                                                                .Select(m => m.Id).ToList();
+
+                //Remove current memebers
+                foreach (string member in memberIds)
+                {
+                    await _projectService.RemoveUserFromProjectAsync(member, model.Project.Id);
+                }
+
+                //Add selected members
+                foreach (string member in model.SelectedUsers)
+                {
+                    await _projectService.AddUserToProjectAsync(member, model.Project.Id);
+                }
+
+                //Go to projects details view
+                return RedirectToAction("Details", "Projects", new { id = model.Project.Id });
+
+            }
+            return RedirectToAction(nameof(AssignMembers), new { id = model.Project.Id });
         } 
         #endregion
 
