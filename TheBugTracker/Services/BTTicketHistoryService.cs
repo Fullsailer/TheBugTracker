@@ -11,13 +11,18 @@ namespace TheBugTracker.Services
 {
     public class BTTicketHistoryService : IBTTicketHistoryService
     {
+        #region Properties
         private readonly ApplicationDbContext _context;
-        
+        #endregion
+
+        #region Constructor
         public BTTicketHistoryService(ApplicationDbContext context)
         {
             _context = context;
         }
+        #endregion
 
+        #region Add History (1)
         public async Task AddHistoryAsync(Ticket oldTicket, Ticket newTicket, string userId)
         {
             // NEW TICKET HAS BEEN ADDED
@@ -149,6 +154,40 @@ namespace TheBugTracker.Services
             }
         }
 
+        #endregion
+
+        #region Add History (2)
+        public async Task AddHistoryAsync(int ticketId, string model, string userId)
+        {
+            try
+            {
+                Ticket ticket = await _context.Tickets.FindAsync(ticketId);
+                string description = model.ToLower().Replace("Ticket", "");
+                description = $"New {description}  add to ticket: {ticket.Title}";
+
+                TicketHistory history = new()
+                {
+                    TicketId = ticket.Id,
+                    Property = model,
+                    OldValue = "",
+                    NewValue = "",
+                    Created = DateTimeOffset.Now,
+                    UserId = userId,
+                    Description = description
+                };
+
+                await _context.TicketHistories.AddAsync(history);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        } 
+        #endregion
+
+        #region Get Company Ticket Histories
         public async Task<List<TicketHistory>> GetCompanyTicketsHistoriesAsync(int companyId)
         {
             try
@@ -159,7 +198,7 @@ namespace TheBugTracker.Services
                                                                 .ThenInclude(t => t.History)
                                                                     .ThenInclude(h => h.User)
                                                         .FirstOrDefaultAsync(c => c.Id == companyId)).Projects.ToList();
-               
+
                 List<Ticket> tickets = projects.SelectMany(p => p.Tickets).ToList();
 
                 List<TicketHistory> ticketHistories = tickets.SelectMany(t => t.History).ToList();
@@ -173,6 +212,9 @@ namespace TheBugTracker.Services
             }
         }
 
+        #endregion
+
+        #region Get Project Tickets Histories
         public async Task<List<TicketHistory>> GetProjectTicketsHistoriesAsync(int projectId, int companyId)
         {
             try
@@ -193,5 +235,7 @@ namespace TheBugTracker.Services
                 throw;
             }
         }
+
+        #endregion    }
     }
 }
