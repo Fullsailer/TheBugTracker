@@ -63,7 +63,10 @@ namespace TheBugTracker.Services
             if (!string.IsNullOrWhiteSpace(file))
             {
                 fileImage = Path.GetExtension(file).Replace(".", "");
-                return $"/img/contenttype/{fileImage}.png";
+                //Fix this 
+                return $"/img/contenttype/_MACOSX/png/{fileImage}.png";
+                //Original code
+                //return $"/img/contenttype/{fileImage}.png";
             }
             return fileImage;
         }
