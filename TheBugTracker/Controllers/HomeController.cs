@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using TheBugTracker.Extensions;
 using TheBugTracker.Models;
+using TheBugTracker.Models.ViewModels;
 
 namespace TheBugTracker.Controllers
 {
@@ -25,7 +27,10 @@ namespace TheBugTracker.Controllers
 
         public async Task<IActionResult> Dashboard() 
         {
-             
+            DashboardViewModel model = new();
+            int companyId = User.Identity.GetCompanyId().Value;
+
+            return View(model);
         }
 
         public IActionResult Privacy()
