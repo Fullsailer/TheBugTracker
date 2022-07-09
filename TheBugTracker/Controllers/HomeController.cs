@@ -23,6 +23,11 @@ namespace TheBugTracker.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Dashboard() 
+        {
+             
+        }
+
         public IActionResult Privacy()
         {
             return View();
