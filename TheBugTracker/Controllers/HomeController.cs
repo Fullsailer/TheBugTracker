@@ -14,32 +14,38 @@ namespace TheBugTracker.Controllers
 {
     public class HomeController : Controller
     {
+        #region Properties
         private readonly ILogger<HomeController> _logger;
         private readonly IBTCompanyInfoService _companyInfoService;
+        #endregion
 
+        #region Constructors
         public HomeController(ILogger<HomeController> logger, IBTCompanyInfoService companyInfoService)
         {
             _logger = logger;
             _companyInfoService = companyInfoService;
-        }
+        } 
+        #endregion
 
         public IActionResult Index()
         {
             return View();
         }
 
-        public async Task<IActionResult> Dashboard() 
+        #region Get Dashboard Information
+        public async Task<IActionResult> Dashboard()
         {
             DashboardViewModel model = new();
             int companyId = User.Identity.GetCompanyId().Value;
 
             model.Company = await _companyInfoService.GetCompanyInfoByIdAsync(companyId);
-            model.Projects = (await _companyInfoService.GetAllProjectsAsync(companyId)).Where(p => p.Archived==false).ToList();
+            model.Projects = (await _companyInfoService.GetAllProjectsAsync(companyId)).Where(p => p.Archived == false).ToList();
             model.Tickets = model.Projects.SelectMany(p => p.Tickets).Where(t => t.Archived == false).ToList();
             model.Members = model.Company.Members.ToList();
 
             return View(model);
-        }
+        } 
+        #endregion
 
         public IActionResult Privacy()
         {
